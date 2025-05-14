@@ -7,13 +7,14 @@ opt.relativenumber = true -- show relative line numbers
 opt.number = true -- shows absolute line number on cursor line (when relative number is on)
 
 -- tabs & indentation
-opt.tabstop = 2 -- 2 spaces for tabs (prettier default)
-opt.shiftwidth = 2 -- 2 spaces for indent width
+opt.tabstop = 4 -- 2 spaces for tabs (prettier default)
+opt.shiftwidth = 4 -- 2 spaces for indent width
 opt.expandtab = true -- expand tab to spaces
 opt.autoindent = true -- copy indent from current line when starting new one
 
 -- line wrapping
 opt.wrap = false -- disable line wrapping
+-- opt.showbreak = "↪" -- show visual indicator for truncated lines
 
 -- search settings
 opt.ignorecase = true -- ignore case when searching
@@ -42,3 +43,24 @@ opt.splitbelow = true -- split horizontal window to the bottom
 
 -- turn off swapfile
 opt.swapfile = false
+
+vim.api.nvim_create_user_command("ToggleLines", function()
+	if vim.wo.number then
+		vim.wo.number = false
+		vim.wo.relativenumber = false
+		vim.opt.fillchars:append({ eob = " " }) -- hide ~
+	else
+		vim.wo.number = true
+		vim.wo.relativenumber = true
+		vim.opt.fillchars:append({ eob = "~" }) -- show ~ again if desired
+	end
+end, {})
+
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "lua",
+	callback = function()
+		vim.bo.tabstop = 2
+		vim.bo.shiftwidth = 2
+		vim.bo.softtabstop = 2
+	end,
+})
