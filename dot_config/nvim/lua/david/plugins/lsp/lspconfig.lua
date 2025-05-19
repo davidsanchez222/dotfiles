@@ -18,6 +18,24 @@ return {
 
 		local keymap = vim.keymap
 
+		local diagnostics_virtual_text_enabled = false
+		function _G.toggle_virtual_text()
+			diagnostics_virtual_text_enabled = not diagnostics_virtual_text_enabled
+			vim.diagnostic.config({
+				virtual_text = diagnostics_virtual_text_enabled,
+			})
+			print("Virtual text diagnostics: " .. (diagnostics_virtual_text_enabled and "ON" or "OFF"))
+		end
+
+		vim.keymap.set("n", "<leader>nd", toggle_virtual_text, { desc = "Toggle virtual text diagnostics" })
+
+		vim.diagnostic.config({
+			virtual_text = false,
+			signs = true,
+			underline = true,
+			update_in_insert = false,
+		})
+
 		vim.api.nvim_create_autocmd("LspAttach", {
 			group = vim.api.nvim_create_augroup("UserLspConfig", {}),
 			callback = function(ev)
@@ -61,6 +79,9 @@ return {
 
 				opts.desc = "Restart LSP"
 				keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts)
+
+				opts.desc = "Toggle virtual text diagnostics"
+				keymap.set("n", "<leader>nd", toggle_virtual_text, opts)
 			end,
 		})
 
