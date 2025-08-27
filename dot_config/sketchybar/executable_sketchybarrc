@@ -53,5 +53,6 @@ source "$ITEM_DIR/cpu.sh"
 sketchybar --hotload true
 
 sketchybar --update
+sketchybar --bar display=main ...
 
 echo "sketchybar configuration loaded.."
