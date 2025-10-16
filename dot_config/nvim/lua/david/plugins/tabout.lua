@@ -4,6 +4,7 @@ return {
 		"abecodes/tabout.nvim",
 		lazy = false,
 		enabled = true,
+		wants = { "nvim-treesitter" },
 		config = function()
 			require("tabout").setup({
 				tabkey = "<Tab>", -- key to trigger tabout, set to an empty string to disable

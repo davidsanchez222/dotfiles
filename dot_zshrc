@@ -89,9 +89,11 @@ alias lst="eza -lah -snew"
 alias tree="eza --tree"
 alias cat='bat'
 alias c='clear'
-alias man='tldr'
 alias top='btop'
 alias zshrc='nvim ~/.zshrc'
+alias normal='~/util/toggle_sleep/toggle_sleep.sh normal normal normal'
+alias never='~/util/toggle_sleep/toggle_sleep.sh never never never'
+alias cpindex='echo "file://$PWD/index.html" | pbcopy'
 
 # Tmux
 alias ta='tmux attach -t'

@@ -1,11 +1,7 @@
 font-size = 17
-# macos-titlebar-style = hidden
-# macos-titlebar-style = transparent
-# macos-titlebar-style = native
 macos-titlebar-style = tabs
 font-family = "Monaco"
-# font-family = "MesloLGS Nerd Font Mono"
-theme = "catppuccin-frappe"
+theme = "Catpuccin Frappe"
 
 window-width = 112
 window-height = 34
@@ -16,9 +12,15 @@ background-opacity = 0.6
 background-blur-radius = 20
 window-colorspace = "display-p3"
 
+# keybind = super+shift+h=previous_tab
+# keybind = super+shift+l=next_tab
+keybind = super+shift+h=goto_split:left
+keybind = super+shift+l=goto_split:right
+keybind = super+shift+j=goto_split:bottom
+keybind = super+shift+k=goto_split:top
 
-# macOS native fullscreen mode equivalent
+
 window-inherit-working-directory = true
 
-auto-update-channel = tip
+# auto-update-channel = tip
 macos-window-buttons = hidden

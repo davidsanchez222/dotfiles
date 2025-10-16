@@ -57,7 +57,7 @@ vim.api.nvim_create_user_command("ToggleLines", function()
 end, {})
 
 vim.api.nvim_create_autocmd("FileType", {
-	pattern = "lua",
+	pattern = { "lua", "javascript", "typescript", "javascriptreact", "typescriptreact" },
 	callback = function()
 		vim.bo.tabstop = 2
 		vim.bo.shiftwidth = 2
