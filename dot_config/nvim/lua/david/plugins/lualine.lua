@@ -53,6 +53,11 @@ return {
 					},
 				},
 				lualine_b = {
+					-- {
+					-- 	function()
+					-- 		return vim.fn.expand("%:p"):gsub(vim.env.HOME, "~")
+					-- 	end,
+					-- },
 					"filename",
 					{
 						function()

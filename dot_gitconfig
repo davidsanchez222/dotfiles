@@ -1,0 +1,22 @@
+[user]
+	name =
+	email =
+[init]
+	defaultBranch = main
+[alias]
+  # prettier git log
+  tree = log --graph --oneline --all
+
+  # useful when you have to update your last commit with staged files without editing the commit message.
+  oops = commit --amend --no-edit
+
+  # edit last commit message
+  reword = commit --amend
+
+  # undo last commit but keep changed files in stage
+  uncommit = reset --soft HEAD~1
+
+  # remove file(s) from Git but not from disk
+  untrack = rm --cache --
+[core]
+	editor = nvim

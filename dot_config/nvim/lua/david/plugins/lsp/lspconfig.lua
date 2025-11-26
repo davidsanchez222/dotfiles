@@ -68,6 +68,22 @@ return {
 				opts.desc = "Show line diagnostics"
 				keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts)
 
+				opts.desc = "Copy line diagnostic to clipboard"
+				keymap.set("n", "<leader>dy", function()
+					local diagnostics = vim.diagnostic.get(0, { lnum = vim.api.nvim_win_get_cursor(0)[1] - 1 })
+					if #diagnostics == 0 then
+						vim.notify("No diagnostics on this line", vim.log.levels.INFO)
+						return
+					end
+					-- Concatenate all diagnostic messages on this line
+					local msg = ""
+					for _, d in ipairs(diagnostics) do
+						msg = msg .. d.message .. "\n"
+					end
+					vim.fn.setreg("+", msg) -- set system clipboard
+					vim.notify("Copied diagnostic(s) to clipboard", vim.log.levels.INFO)
+				end, opts)
+
 				opts.desc = "Go to previous diagnostic"
 				keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
 

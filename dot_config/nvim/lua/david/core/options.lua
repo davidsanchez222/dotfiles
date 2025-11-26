@@ -44,6 +44,7 @@ opt.splitbelow = true -- split horizontal window to the bottom
 -- turn off swapfile
 opt.swapfile = false
 
+-- toggle for line numbers
 vim.api.nvim_create_user_command("ToggleLines", function()
 	if vim.wo.number then
 		vim.wo.number = false
@@ -57,10 +58,27 @@ vim.api.nvim_create_user_command("ToggleLines", function()
 end, {})
 
 vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "lua", "javascript", "typescript", "javascriptreact", "typescriptreact" },
+	pattern = { "lua", "javascript", "typescript", "javascriptreact", "typescriptreact", "html" },
 	callback = function()
 		vim.bo.tabstop = 2
 		vim.bo.shiftwidth = 2
 		vim.bo.softtabstop = 2
 	end,
 })
+
+-- open svg in browser
+vim.api.nvim_create_user_command("OpenSvgInBrowser", function()
+	if vim.bo.modified then
+		vim.cmd.write()
+	end
+
+	local file = vim.fn.expand("%:p")
+	if file == "" then
+		vim.notify("No file associated", vim.log.levels.ERROR)
+		return
+	end
+
+	-- Force macOS open to use Zen
+	local zen_app = "Zen Browser.app" -- if this doesn't work, try "Zen Browser"
+	vim.fn.jobstart({ "open", "-a", zen_app, file }, { detach = true })
+end, {})

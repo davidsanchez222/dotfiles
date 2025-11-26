@@ -49,6 +49,7 @@ keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer
 
 keymap.set("n", "j", "jzz", { desc = "Stay centered vertically when scrolling down" })
 keymap.set("n", "k", "kzz", { desc = "Stay centered vertically when scrolling up" })
+
 -- By default, CTRL-U and CTRL-D scroll by half a screen (50% of the window height)
 -- Scroll by 35% of the window height and keep the cursor centered
 local scroll_percentage = 0.35
@@ -64,3 +65,6 @@ end, { noremap = true, silent = true })
 
 -- Map <leader>u to the ToggleLines command
 vim.keymap.set("n", "<leader>u", "<cmd>ToggleLines<CR>", { noremap = true, silent = true })
+
+-- Map <leader>nb to the OpenSvgInBrowser command
+vim.keymap.set("n", "<leader>nb", "<cmd>OpenSvgInBrowser<CR>", { silent = true, desc = "View SVG in Zen" })
