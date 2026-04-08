@@ -1,0 +1,19 @@
+# ignore all GIFs anywhere
+**/*.gif
+
+# or only in one subtree
+.config/myapp/**/*.gif
+
+raycast/extensions/**
+
+**/backup
+**/backup/**
+**/automatic_backups
+**/automatic_backups/**
+
+
+nushell/history.txt
+
+**/.DS_Store
+
+**/backup/**

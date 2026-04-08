@@ -1,0 +1,147 @@
+{
+  "$schema" : "https:\/\/schema.linearmouse.app\/0.10.1",
+  "schemes" : [
+    {
+      "if" : {
+        "device" : {
+          "category" : "trackpad",
+          "productID" : "0x281",
+          "productName" : "Apple Internal Keyboard \/ Trackpad",
+          "vendorID" : "0x5ac"
+        }
+      },
+      "pointer" : {
+        "acceleration" : 0.6758999999999999,
+        "disableAcceleration" : false,
+        "speed" : 0.0975
+      },
+      "scrolling" : {
+        "acceleration" : {
+          "vertical" : 1
+        }
+      }
+    },
+    {
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0xb02a",
+          "productName" : "Logi M650 L",
+          "serialNumber" : "3DDC32E4",
+          "vendorID" : "0x46d"
+        }
+      },
+      "pointer" : {
+        "acceleration" : 0,
+        "speed" : 0.1095
+      }
+    },
+    {
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0x2025",
+          "productName" : "Model D- Wireless",
+          "serialNumber" : "000000000000",
+          "vendorID" : "0x258a"
+        }
+      },
+      "pointer" : {
+        "acceleration" : 0.54,
+        "disableAcceleration" : true,
+        "speed" : 0.2047
+      },
+      "scrolling" : {
+        "reverse" : {
+          "vertical" : true
+        }
+      }
+    },
+    {
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0xb019",
+          "productName" : "MX Master 2S",
+          "serialNumber" : "7031344B42F4AD31",
+          "vendorID" : "0x46d"
+        }
+      },
+      "pointer" : {
+        "acceleration" : 0.6879999999999999
+      },
+      "scrolling" : {
+        "acceleration" : {
+          "vertical" : 1
+        },
+        "reverse" : {
+          "vertical" : true
+        }
+      }
+    },
+    {
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0xc548",
+          "productName" : "USB Receiver",
+          "vendorID" : "0x46d"
+        }
+      },
+      "pointer" : {
+        "acceleration" : 0.5,
+        "disableAcceleration" : false,
+        "speed" : 0.0689655172413792768
+      },
+      "scrolling" : {
+        "acceleration" : {
+          "vertical" : 1
+        },
+        "distance" : {
+          "vertical" : "auto"
+        },
+        "reverse" : {
+          "vertical" : true
+        },
+        "speed" : {
+          "vertical" : 0
+        }
+      }
+    },
+    {
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0xb034",
+          "productName" : "MX Master 3S",
+          "serialNumber" : "BA275B58",
+          "vendorID" : "0x46d"
+        }
+      },
+      "scrolling" : {
+        "acceleration" : {
+          "vertical" : 1
+        },
+        "reverse" : {
+          "vertical" : true
+        }
+      }
+    },
+    {
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0x2014",
+          "productName" : "Model D- Wireless",
+          "serialNumber" : "000000000000",
+          "vendorID" : "0x258a"
+        }
+      },
+      "scrolling" : {
+        "reverse" : {
+          "vertical" : true
+        }
+      }
+    }
+  ]
+}
