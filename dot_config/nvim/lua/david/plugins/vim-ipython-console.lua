@@ -1,0 +1,14 @@
+-- return {
+-- 	dir = "/Users/david/code/vim-ipython-console/nvim-scimode",
+-- 	name = "nvim-scimode",
+-- 	config = function()
+-- 		require("nvim_scimode").setup({
+-- 			cache_dir = vim.fn.expand("~/.cache/nvim_sci"),
+-- 			repl_cmd = { "ipython" },
+-- 			cell_delimiter = "# %%",
+-- 			auto_keymaps = true,
+-- 		})
+-- 	end,
+-- }
+--
+return {}

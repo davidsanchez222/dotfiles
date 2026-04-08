@@ -9,7 +9,7 @@ return {
 		local autopairs = require("nvim-autopairs")
 		local rule = require("nvim-autopairs.rule")
 
-		-- configure autopairs
+		-- configure autopairs dfdsf
 		autopairs.setup({
 			check_ts = true, -- enable treesitter
 			ts_config = {

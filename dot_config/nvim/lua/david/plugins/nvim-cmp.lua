@@ -41,9 +41,10 @@ return {
 				["<C-e>"] = cmp.mapping.abort(), -- close completion window
 				["<CR>"] = cmp.mapping(
 					cmp.mapping.confirm({ select = true, behavior = cmp.ConfirmBehavior.Insert }),
-					{ "i", "c" }
+					{ "i" }
 				),
 			}),
+
 			-- sources for autocompletion
 			sources = cmp.config.sources({
 				{ name = "nvim_lsp" },

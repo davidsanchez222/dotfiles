@@ -15,4 +15,11 @@ require("lazy").setup({ { import = "david.plugins" }, { import = "david.plugins.
 	change_detection = {
 		notify = false,
 	},
+	performance = {
+		rtp = {
+			-- don't reset
+			reset = false,
+			-- other options...
+		},
+	},
 })

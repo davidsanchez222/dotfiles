@@ -1,19 +1,13 @@
 return {
-	"Pocco81/auto-save.nvim",
-	config = function()
-		local auto_session = require("auto-save")
-
-		auto_session.setup({
-			execution_message = {
-				message = function() -- message to print on save
-					return ("AutoSave: saved at " .. vim.fn.strftime("%H:%M:%S"))
-				end,
-				dim = 0.18, -- dim the color of `message`
-				cleaning_interval = 1250, -- (milliseconds) automatically clean MsgArea after displaying `message`. See :h MsgArea
-			},
-		})
-
-		local keymap = vim.keymap
-		keymap.set("n", "<leader>ns", ":ASToggle<CR>", {})
-	end,
+	"okuuva/auto-save.nvim",
+	version = "^1.0.0", -- see https://devhints.io/semver, alternatively use '*' to use the latest tagged release
+	cmd = "ASToggle", -- optional for lazy loading on command
+	event = { "InsertLeave", "TextChanged" }, -- optional for lazy loading on trigger events
+	keys = {
+		{ "<leader>ns", "<cmd>ASToggle<CR>", desc = "Toggle auto-save" },
+	},
+	opts = {
+		-- your config goes here
+		-- or just leave it empty :)
+	},
 }

@@ -1,21 +1,13 @@
 return {
 	"neovim/nvim-lspconfig",
 	event = { "BufReadPre", "BufNewFile" },
-	opts = {
-		servers = {
-			-- lua_ls = true,
-		},
-	},
 	dependencies = {
 		"hrsh7th/cmp-nvim-lsp",
 		{ "antosha417/nvim-lsp-file-operations", config = true },
 		{ "folke/neodev.nvim", opts = {} },
 	},
-	config = function(_, opts)
-		local lspconfig = require("lspconfig")
-		local mason_lspconfig = require("mason-lspconfig")
+	config = function()
 		local cmp_nvim_lsp = require("cmp_nvim_lsp")
-
 		local keymap = vim.keymap
 
 		local diagnostics_virtual_text_enabled = false
@@ -27,13 +19,15 @@ return {
 			print("Virtual text diagnostics: " .. (diagnostics_virtual_text_enabled and "ON" or "OFF"))
 		end
 
-		vim.keymap.set("n", "<leader>nd", toggle_virtual_text, { desc = "Toggle virtual text diagnostics" })
-
 		vim.diagnostic.config({
 			virtual_text = false,
 			signs = true,
 			underline = true,
 			update_in_insert = false,
+		})
+
+		vim.keymap.set("n", "<leader>nd", toggle_virtual_text, {
+			desc = "Toggle virtual text diagnostics",
 		})
 
 		vim.api.nvim_create_autocmd("LspAttach", {
@@ -75,12 +69,11 @@ return {
 						vim.notify("No diagnostics on this line", vim.log.levels.INFO)
 						return
 					end
-					-- Concatenate all diagnostic messages on this line
 					local msg = ""
 					for _, d in ipairs(diagnostics) do
 						msg = msg .. d.message .. "\n"
 					end
-					vim.fn.setreg("+", msg) -- set system clipboard
+					vim.fn.setreg("+", msg)
 					vim.notify("Copied diagnostic(s) to clipboard", vim.log.levels.INFO)
 				end, opts)
 
@@ -94,7 +87,7 @@ return {
 				keymap.set("n", "K", vim.lsp.buf.hover, opts)
 
 				opts.desc = "Restart LSP"
-				keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts)
+				keymap.set("n", "<leader>rs", "<cmd>LspRestart<CR>", opts)
 
 				opts.desc = "Toggle virtual text diagnostics"
 				keymap.set("n", "<leader>nd", toggle_virtual_text, opts)
@@ -104,37 +97,65 @@ return {
 		local capabilities = cmp_nvim_lsp.default_capabilities()
 
 		local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
-		for type, icon in pairs(signs) do
-			local hl = "DiagnosticSign" .. type
-			vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-		end
+		vim.diagnostic.config({
+			signs = {
+				text = {
+					ERROR = signs.Error,
+					WARN = signs.Warn,
+					INFO = signs.Info,
+					HINT = signs.Hint,
+				},
+			},
+		})
 
-		mason_lspconfig.setup_handlers({
-			function(server_name)
-				if opts.servers and opts.servers[server_name] == false then
-					return
-				end
-				lspconfig[server_name].setup({
-					capabilities = capabilities,
-				})
-			end,
+		vim.lsp.config("lua_ls", {
+			capabilities = capabilities,
+			settings = {
+				Lua = {
+					diagnostics = {
+						globals = { "vim" },
+					},
+					completion = {
+						callSnippet = "Replace",
+					},
+				},
+			},
+		})
 
-			-- Uncomment to customize lua_ls behavior if you want to re-enable it later
-			-- ["lua_ls"] = function()
-			--   lspconfig["lua_ls"].setup({
-			--     capabilities = capabilities,
-			--     settings = {
-			--       Lua = {
-			--         diagnostics = {
-			--           globals = { "vim" },
-			--         },
-			--         completion = {
-			--           callSnippet = "Replace",
-			--         },
-			--       },
-			--     },
-			--   })
-			-- end,
+		vim.lsp.config("pyright", {
+			capabilities = capabilities,
+		})
+
+		vim.lsp.config("html", {
+			capabilities = capabilities,
+		})
+
+		vim.lsp.config("cssls", {
+			capabilities = capabilities,
+		})
+
+		vim.lsp.config("tailwindcss", {
+			capabilities = capabilities,
+		})
+
+		vim.lsp.config("svelte", {
+			capabilities = capabilities,
+		})
+
+		vim.lsp.config("graphql", {
+			capabilities = capabilities,
+		})
+
+		vim.lsp.config("emmet_ls", {
+			capabilities = capabilities,
+		})
+
+		vim.lsp.config("prismals", {
+			capabilities = capabilities,
+		})
+
+		vim.lsp.config("ts_ls", {
+			capabilities = capabilities,
 		})
 	end,
 }

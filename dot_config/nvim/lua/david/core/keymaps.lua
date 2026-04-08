@@ -38,12 +38,6 @@ keymap.set("n", "<leader>sh", "<C-w>s", { desc = "Split window horizontally" }) 
 keymap.set("n", "<leader>se", "<C-w>=", { desc = "Make splits equal size" }) -- make split windows equal width & height
 keymap.set("n", "<leader>sx", "<cmd>close<CR>", { desc = "Close current split" }) -- close current split window
 
-keymap.set("n", "<leader>to", "<cmd>tabnew<CR>", { desc = "Open new tab" }) -- open new tab
-keymap.set("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Close current tab" }) -- close current tab
-keymap.set("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" }) --  go to next tab
-keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" }) --  go to previous tab
-keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" }) --  move current buffer to new tab
-
 -- noice dismiss
 -- keymap.set("n", "<leader>nd", "<cmd>NoiceDismiss<CR>", { desc = "Dismiss Noice Message" })
 
@@ -63,8 +57,8 @@ vim.keymap.set("n", "<C-u>", function()
 	vim.cmd("normal! " .. lines .. "kzz")
 end, { noremap = true, silent = true })
 
--- Map <leader>u to the ToggleLines command
-vim.keymap.set("n", "<leader>u", "<cmd>ToggleLines<CR>", { noremap = true, silent = true })
-
 -- Map <leader>nb to the OpenSvgInBrowser command
 vim.keymap.set("n", "<leader>nb", "<cmd>OpenSvgInBrowser<CR>", { silent = true, desc = "View SVG in Zen" })
+
+-- Map <leader>fp to the FilePath command
+vim.keymap.set("n", "<leader>fp", "<cmd>FilePath<CR>", { silent = true, desc = "Copy absolute filepath" })

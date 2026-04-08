@@ -14,7 +14,7 @@ opt.autoindent = true -- copy indent from current line when starting new one
 
 -- line wrapping
 opt.wrap = false -- disable line wrapping
--- opt.showbreak = "↪" -- show visual indicator for truncated lines
+opt.showbreak = "↪" -- show visual indicator for truncated lines
 
 -- search settings
 opt.ignorecase = true -- ignore case when searching
@@ -25,8 +25,7 @@ opt.cursorline = true -- highlight the current cursor line
 
 -- appearance
 opt.mouse = ""
--- turn on termguicolors for nightfly colorscheme to work
--- (have to use iterm2 or any other true color terminal)
+-- opt.mouse = "a"
 opt.termguicolors = true
 opt.background = "dark" -- colorschemes that can be light or dark will be made dark
 opt.signcolumn = "yes" -- show sign column so that text doesn't shift
@@ -44,19 +43,7 @@ opt.splitbelow = true -- split horizontal window to the bottom
 -- turn off swapfile
 opt.swapfile = false
 
--- toggle for line numbers
-vim.api.nvim_create_user_command("ToggleLines", function()
-	if vim.wo.number then
-		vim.wo.number = false
-		vim.wo.relativenumber = false
-		vim.opt.fillchars:append({ eob = " " }) -- hide ~
-	else
-		vim.wo.number = true
-		vim.wo.relativenumber = true
-		vim.opt.fillchars:append({ eob = "~" }) -- show ~ again if desired
-	end
-end, {})
-
+-- make buffers with these languages tab with 2 spaces rather than one
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = { "lua", "javascript", "typescript", "javascriptreact", "typescriptreact", "html" },
 	callback = function()
@@ -66,7 +53,31 @@ vim.api.nvim_create_autocmd("FileType", {
 	end,
 })
 
--- open svg in browser
+-- copy output of command
+vim.api.nvim_create_user_command("Out", function(opts)
+	local ok, result = pcall(vim.fn.execute, "silent " .. opts.args)
+	local text = tostring(result or "")
+
+	vim.fn.setreg("+", text)
+	vim.fn.setreg("*", text)
+
+	if not ok then
+		vim.notify("Out failed; error copied to clipboard", vim.log.levels.ERROR)
+		return
+	end
+
+	if text == "" then
+		vim.notify("Command produced no capturable output", vim.log.levels.WARN)
+		return
+	end
+
+	vim.notify("Copied output to clipboard", vim.log.levels.INFO)
+end, {
+	nargs = "+",
+	complete = "command",
+})
+
+-- open svg in browser. <leader>nb
 vim.api.nvim_create_user_command("OpenSvgInBrowser", function()
 	if vim.bo.modified then
 		vim.cmd.write()
@@ -78,7 +89,24 @@ vim.api.nvim_create_user_command("OpenSvgInBrowser", function()
 		return
 	end
 
-	-- Force macOS open to use Zen
+	-- force macOS open to use Zen
 	local zen_app = "Zen Browser.app" -- if this doesn't work, try "Zen Browser"
 	vim.fn.jobstart({ "open", "-a", zen_app, file }, { detach = true })
 end, {})
+
+-- copy absolute filepath to clipboard. <leader>fp
+vim.api.nvim_create_user_command("FilePath", function(opts)
+	local path
+
+	if opts.args ~= "" then
+		path = vim.fn.fnamemodify(opts.args, ":p")
+	else
+		path = vim.fn.expand("%:p")
+	end
+
+	vim.fn.setreg("+", path)
+	print("Copied: " .. path)
+end, {
+	nargs = "?",
+	complete = "file",
+})
