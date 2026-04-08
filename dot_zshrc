@@ -26,6 +26,7 @@ source "${ZINIT_HOME}/zinit.zsh"
 # Add in Powerlevel10k
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
+
 # Add in zsh plugins
 zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
@@ -33,14 +34,9 @@ zinit light zsh-users/zsh-autosuggestions
 zinit light Aloxaf/fzf-tab
 
 # Add in snippets
-zinit snippet OMZL::git.zsh
-zinit snippet OMZP::git
-zinit snippet OMZP::sudo
-zinit snippet OMZP::archlinux
 zinit snippet OMZP::aws
 zinit snippet OMZP::kubectl
 zinit snippet OMZP::kubectx
-zinit snippet OMZP::command-not-found
 
 # Load completions
 autoload -Uz compinit && compinit
@@ -81,19 +77,19 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=always $realpat
 # Vim
 alias v='nvim'
 alias vdiff='nvim -d'
-alias nf='fzf -m --preview="bat --color=always {}" --bind "enter:become(nvim {+})"' 
+alias fzfe='fzf -m --preview="bat --color=always {}" --bind "enter:become(nvim {+})"' 
 
 # Command line
 alias ls="eza --icons=always"
 alias lst="eza -lah -snew"
 alias tree="eza --tree"
-alias cat='bat'
 alias c='clear'
 alias top='btop'
 alias zshrc='nvim ~/.zshrc'
 alias normal='~/util/toggle_sleep/toggle_sleep.sh normal normal normal'
 alias never='~/util/toggle_sleep/toggle_sleep.sh never never never'
 alias cpindex='echo "file://$PWD/index.html" | pbcopy'
+alias tpcomp='typst compile davidResume.typ && pwd | pbcopy'
 
 # Tmux
 alias ta='tmux attach -t'
@@ -103,10 +99,41 @@ alias tl='tmux list-sessions'
 alias td='tmux detach'
 alias tch='clear; tmux clear-history; clear'
 
+# Make directory then change into into
+mkcd() {
+  mkdir -p "$1" && cd "$1"
+}
+
+# Hooks for chpwd
+autoload -Uz add-zsh-hook
+
+conda_auto_activate() {
+    if [[ -f ".conda-env" ]]; then
+        local env_name
+        env_name="$(< .conda-env)"
+        if [[ "$CONDA_DEFAULT_ENV" != "$env_name" ]]; then
+            conda activate "$env_name" 2>/dev/null
+        fi
+    else
+        if [[ "$CONDA_DEFAULT_ENV" != "base" ]]; then
+            conda activate base 2>/dev/null
+        fi
+    fi
+}
+
+change_ls() {
+    ls
+}
+
+add-zsh-hook chpwd conda_auto_activate
+add-zsh-hook chpwd change_ls
+
 
 # Shell integrations
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
+unalias zi
+alias zi='__zoxide_zi'
 
 
 # >>> conda initialize >>>
@@ -135,3 +162,10 @@ export PATH=$PATH:$HOME/go/bin
 export PATH=$PATH:$HOME/go/bin
 
 export PATH=$PATH:/Users/david/.spicetify
+
+# opencode
+export PATH=/Users/david/.opencode/bin:$PATH
+
+export EDITOR="nvim"
+export VISUAL="$EDITOR"
+
