@@ -3,12 +3,12 @@ return {
 		"stevearc/oil.nvim",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
-			CustomOilBar = function()
-				local path = vim.fn.expand("%")
-				path = path:gsub("oil://", "")
-
-				return "  " .. vim.fn.fnamemodify(path, ":.")
-			end
+			-- CustomOilBar = function()
+			-- 	local path = vim.fn.expand("%")
+			-- 	path = path:gsub("oil://", "")
+			--
+			-- 	return "  " .. vim.fn.fnamemodify(path, ":.")
+			-- end
 
 			require("oil").setup({
 				columns = { "icon" },
@@ -22,6 +22,12 @@ return {
 						winblend = 0,
 						-- winbar = "%{v:lua.CustomOilBar()}",
 					},
+				},
+
+				keymaps = {
+					["qq"] = function()
+						require("oil").toggle_float()
+					end,
 				},
 
 				view_options = {
