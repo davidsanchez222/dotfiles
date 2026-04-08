@@ -1,0 +1,23 @@
+font-size = 17
+macos-titlebar-style = tabs
+macos-window-buttons = hidden
+font-family = "Monaco"
+theme = Catppuccin Frappe
+window-width = 139
+window-height = 36
+window-padding-x = 10
+window-padding-y = 20
+background-opacity = 0.6
+background-blur = 20
+window-colorspace = "display-p3"
+
+window-inherit-working-directory = true
+auto-update-channel = tip
+
+keybind = super+shift+e=toggle_background_opacity
+keybind = performable:ctrl+h=goto_split:left
+keybind = performable:ctrl+j=goto_split:down
+keybind = performable:ctrl+k=goto_split:up
+keybind = performable:ctrl+l=goto_split:right
+keybind = global:super+shift+grave_accent=toggle_quick_terminal
+
