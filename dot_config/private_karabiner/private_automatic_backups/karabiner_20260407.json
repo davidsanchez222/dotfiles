@@ -5,88 +5,6 @@
                 "parameters": { "basic.to_if_alone_timeout_milliseconds": 500 },
                 "rules": [
                     {
-                        "description": "Double tap Right Command for Mission Control, hold for Hyper",
-                        "enabled": false,
-                        "manipulators": [
-                            {
-                                "conditions": [
-                                    {
-                                        "name": "right_command_pending",
-                                        "type": "variable_if",
-                                        "value": 1
-                                    }
-                                ],
-                                "from": {
-                                    "key_code": "right_command",
-                                    "modifiers": { "optional": ["any"] }
-                                },
-                                "to": [
-                                    {
-                                        "set_variable": {
-                                            "name": "right_command_pending",
-                                            "value": 0
-                                        }
-                                    },
-                                    { "apple_vendor_keyboard_key_code": "mission_control" }
-                                ],
-                                "type": "basic"
-                            },
-                            {
-                                "from": {
-                                    "key_code": "right_command",
-                                    "modifiers": { "optional": ["any"] }
-                                },
-                                "to": [
-                                    {
-                                        "key_code": "right_shift",
-                                        "lazy": true,
-                                        "modifiers": ["right_control", "right_option", "right_command"]
-                                    },
-                                    {
-                                        "set_variable": {
-                                            "name": "right_command_pending",
-                                            "value": 1
-                                        }
-                                    }
-                                ],
-                                "to_delayed_action": {
-                                    "to_if_canceled": [
-                                        {
-                                            "set_variable": {
-                                                "name": "right_command_pending",
-                                                "value": 0
-                                            }
-                                        }
-                                    ],
-                                    "to_if_invoked": [
-                                        {
-                                            "set_variable": {
-                                                "name": "right_command_pending",
-                                                "value": 0
-                                            }
-                                        }
-                                    ]
-                                },
-                                "type": "basic"
-                            }
-                        ]
-                    },
-                    {
-                        "manipulators": [
-                            {
-                                "description": "Trigger Hyper Key when Right Command is held",
-                                "from": { "key_code": "right_command" },
-                                "to": [
-                                    {
-                                        "key_code": "right_shift",
-                                        "modifiers": ["right_control", "right_option", "right_command"]
-                                    }
-                                ],
-                                "type": "basic"
-                            }
-                        ]
-                    },
-                    {
                         "description": "Map Option+F/B to word forward/back (exclude terminals)",
                         "manipulators": [
                             {
@@ -142,22 +60,16 @@
                         ]
                     },
                     {
-                        "description": "Post Mission Control if Right Command is tapped, Hyper if held.",
-                        "enabled": false,
                         "manipulators": [
                             {
-                                "from": {
-                                    "key_code": "right_command",
-                                    "modifiers": { "optional": ["any"] }
-                                },
+                                "description": "Trigger Hyper Key when Right Command is held",
+                                "from": { "key_code": "right_command" },
                                 "to": [
                                     {
                                         "key_code": "right_shift",
-                                        "lazy": true,
                                         "modifiers": ["right_control", "right_option", "right_command"]
                                     }
                                 ],
-                                "to_if_alone": [{ "apple_vendor_keyboard_key_code": "mission_control" }],
                                 "type": "basic"
                             }
                         ]
@@ -210,6 +122,44 @@
                                     }
                                 ],
                                 "to_if_alone": [{ "key_code": "escape" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Map Control+(hjkl) to (left, down, up, right) keys (only for Apple built-in keyboard).",
+                        "enabled": false,
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "j",
+                                    "modifiers": { "mandatory": ["left_control"] }
+                                },
+                                "to": [{ "key_code": "down_arrow" }],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "k",
+                                    "modifiers": { "mandatory": ["left_control"] }
+                                },
+                                "to": [{ "key_code": "up_arrow" }],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "h",
+                                    "modifiers": { "mandatory": ["left_control"] }
+                                },
+                                "to": [{ "key_code": "left_arrow" }],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "l",
+                                    "modifiers": { "mandatory": ["left_control"] }
+                                },
+                                "to": [{ "key_code": "right_arrow" }],
                                 "type": "basic"
                             }
                         ]
