@@ -47,6 +47,7 @@ source "$ITEM_DIR/calendar.sh"
 source "$ITEM_DIR/battery.sh"
 source "$ITEM_DIR/volume.sh"
 source "$ITEM_DIR/cpu.sh"
+source "$ITEM_DIR/bluetooth.sh"
 
 #################### Finalizing Setup ####################
 
@@ -54,5 +55,7 @@ sketchybar --hotload true
 
 sketchybar --update
 sketchybar --bar display=main ...
+
+"$PLUGIN_DIR/bluetooth_monitor.sh" &
 
 echo "sketchybar configuration loaded.."
