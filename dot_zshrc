@@ -37,6 +37,7 @@ zinit light Aloxaf/fzf-tab
 zinit snippet OMZP::aws
 zinit snippet OMZP::kubectl
 zinit snippet OMZP::kubectx
+zinit snippet OMZP::git
 
 # Load completions
 autoload -Uz compinit && compinit
@@ -52,6 +53,27 @@ bindkey '^p' history-search-backward
 bindkey '^n' history-search-forward
 bindkey '^@' autosuggest-accept
 bindkey '^[w' kill-region
+bindkey -r '^J' # prevent ctrl-j from carriage return
+
+# insert git commit template (ctrl+j, g, c)
+# \C-b moves cursor back one position
+bindkey -s '^Jgc' 'git commit -m ""\C-b'
+
+# copy output: turn current buffer into `echo $(current buffer) | pbcopy` and run it
+copy-output-widget() {
+  BUFFER="($BUFFER) 2>&1 | pbcopy"
+  zle accept-line
+}
+zle -N copy-output-widget
+bindkey '^Jco' copy-output-widget
+
+
+copy-input-widget() {
+  BUFFER="print -rn -- ${(q)BUFFER} | pbcopy"
+  zle accept-line
+}
+zle -N copy-input-widget
+bindkey '^Jci' copy-input-widget
 
 # History
 HISTSIZE=5000
@@ -125,8 +147,13 @@ change_ls() {
     ls
 }
 
+open_nvim_config() {
+    [[ "$PWD" == "$HOME/.config/nvim" ]] && nvim
+}
+
 add-zsh-hook chpwd conda_auto_activate
 add-zsh-hook chpwd change_ls
+add-zsh-hook chpwd open_nvim_config
 
 
 # Shell integrations

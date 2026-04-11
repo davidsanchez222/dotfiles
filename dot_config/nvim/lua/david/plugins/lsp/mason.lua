@@ -20,6 +20,7 @@ return {
 		},
 		opts = {
 			ensure_installed = {
+				"tinymist",
 				"lua_ls",
 				"pyright",
 				"html",

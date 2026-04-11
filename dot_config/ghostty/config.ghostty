@@ -21,3 +21,7 @@ keybind = performable:ctrl+k=goto_split:up
 keybind = performable:ctrl+l=goto_split:right
 keybind = global:super+shift+grave_accent=toggle_quick_terminal
 
+# <command> + <,> to run ghostty +edit-config
+keybind = unconsumed:super+,=text:\x1bqghostty +edit-config\x0d
+
+custom-shader = shaders/cursor_warp.glsl

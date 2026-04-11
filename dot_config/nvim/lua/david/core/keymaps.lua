@@ -26,7 +26,10 @@ keymap.set("n", "x", '"_x')
 keymap.set("n", "<leader>da", 'ggVG"_d', { desc = "Delete all without copying into register" }) --  go to previous tab
 
 -- yank all
-keymap.set("n", "<leader>ya", "ggVGy", { desc = "Yank all" }) --  go to previous tab
+keymap.set("n", "<leader>ya", "ggVGy", { desc = "Yank all" })
+
+-- select all
+keymap.set("n", "<leader>va", "ggVGy", { desc = "Visual all" })
 
 -- increment/decrement numbers
 keymap.set("n", "<leader>+", "<C-a>", { desc = "Increment number" }) -- increment

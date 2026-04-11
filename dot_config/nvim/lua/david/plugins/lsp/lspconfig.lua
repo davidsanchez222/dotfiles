@@ -122,6 +122,12 @@ return {
 			},
 		})
 
+		vim.lsp.config("tinymist", {
+			capabilities = capabilities,
+			-- cmd = { "tinymist" }, off: Mason, on: Homebrew
+			filetypes = { "typst" },
+		})
+
 		vim.lsp.config("pyright", {
 			capabilities = capabilities,
 		})
