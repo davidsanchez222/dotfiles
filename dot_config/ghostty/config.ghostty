@@ -25,3 +25,5 @@ keybind = global:super+shift+grave_accent=toggle_quick_terminal
 keybind = unconsumed:super+,=text:\x1bqghostty +edit-config\x0d
 
 custom-shader = shaders/cursor_warp.glsl
+
+maximize = true

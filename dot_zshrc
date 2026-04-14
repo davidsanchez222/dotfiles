@@ -61,22 +61,21 @@ bindkey -s '^Jgc' 'git commit -m ""\C-b'
 
 # copy output: turn current buffer into `echo $(current buffer) | pbcopy` and run it
 copy-output-widget() {
-  BUFFER="($BUFFER) 2>&1 | pbcopy"
+  BUFFER=" ($BUFFER) 2>&1 | pbcopy"
   zle accept-line
 }
 zle -N copy-output-widget
 bindkey '^Jco' copy-output-widget
 
-
 copy-input-widget() {
-  BUFFER="print -rn -- ${(q)BUFFER} | pbcopy"
-  zle accept-line
+  print -rn -- "$BUFFER" | pbcopy
+  # zle -M "Copied command line to clipboard"
 }
 zle -N copy-input-widget
 bindkey '^Jci' copy-input-widget
 
 # History
-HISTSIZE=5000
+HISTSIZE=10000
 HISTFILE=~/.zsh_history
 SAVEHIST=$HISTSIZE
 HISTDUP=erase
@@ -108,10 +107,14 @@ alias tree="eza --tree"
 alias c='clear'
 alias top='btop'
 alias zshrc='nvim ~/.zshrc'
-alias normal='~/util/toggle_sleep/toggle_sleep.sh normal normal normal'
-alias never='~/util/toggle_sleep/toggle_sleep.sh never never never'
+alias vhist='nvim ~/.zsh_history'
 alias cpindex='echo "file://$PWD/index.html" | pbcopy'
 alias tpcomp='typst compile davidResume.typ && pwd | pbcopy'
+alias normal='~/util/toggle_sleep/toggle_sleep.sh normal normal normal'
+alias never='~/util/toggle_sleep/toggle_sleep.sh never never never'
+alias dleft='~/util/hammerspoon/display-pos.sh left'
+alias dmiddle='~/util/hammerspoon/display-pos.sh middle'
+alias dright='~/util/hammerspoon/display-pos.sh right'
 
 # Tmux
 alias ta='tmux attach -t'

@@ -5,6 +5,39 @@
                 "parameters": { "basic.to_if_alone_timeout_milliseconds": 500 },
                 "rules": [
                     {
+                        "description": "Post Esc if Caps is tapped, Control if held. Esc key becomes Caps Lock on built-in keyboard",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "identifiers": [{ "is_built_in_keyboard": true }],
+                                        "type": "device_if"
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "escape",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [{ "key_code": "caps_lock" }],
+                                "type": "basic"
+                            },
+                            {
+                                "from": {
+                                    "key_code": "caps_lock",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "left_control",
+                                        "lazy": true
+                                    }
+                                ],
+                                "to_if_alone": [{ "key_code": "escape" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "Double tap Right Command for Mission Control, hold for Hyper",
                         "enabled": false,
                         "manipulators": [
@@ -196,7 +229,8 @@
                         ]
                     },
                     {
-                        "description": "Post Esc if Caps is tapped, Control if held.",
+                        "description": "Post Esc if Caps is tapped, Control if held. (built-in keyboard)",
+                        "enabled": false,
                         "manipulators": [
                             {
                                 "from": {
@@ -261,6 +295,16 @@
                         "vendor_id": 5824
                     },
                     "ignore": true
+                },
+                {
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "is_pointing_device": true,
+                        "product_id": 10203,
+                        "vendor_id": 5824
+                    },
+                    "ignore": false,
+                    "ignore_vendor_events": true
                 }
             ],
             "name": "Default profile",
