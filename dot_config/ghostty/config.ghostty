@@ -27,3 +27,6 @@ keybind = unconsumed:super+,=text:\x1bqghostty +edit-config\x0d
 custom-shader = shaders/cursor_warp.glsl
 
 maximize = true
+
+# gtab managed include
+config-file = "/Users/david/.config/gtab/ghostty-shortcut.conf"

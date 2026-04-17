@@ -1,5 +1,6 @@
 local config = require("modules.config")
 local windows = require("modules.windows")
+local window = require("hs.window")
 
 local M = {}
 
@@ -39,6 +40,34 @@ function M.bind()
 		local _, msg = windows.arrangeZenGhostty()
 		if msg then
 			hs.alert.show(msg)
+		end
+	end)
+
+	bindOne(config.hotkeys.focusWindowWest, function()
+		local w = window.focusedWindow()
+		if w then
+			w:focusWindowWest()
+		end
+	end)
+
+	bindOne(config.hotkeys.focusWindowEast, function()
+		local w = window.focusedWindow()
+		if w then
+			w:focusWindowEast()
+		end
+	end)
+
+	bindOne(config.hotkeys.focusWindowNorth, function()
+		local w = window.focusedWindow()
+		if w then
+			w:focusWindowNorth()
+		end
+	end)
+
+	bindOne(config.hotkeys.focusWindowSouth, function()
+		local w = window.focusedWindow()
+		if w then
+			w:focusWindowSouth()
 		end
 	end)
 end

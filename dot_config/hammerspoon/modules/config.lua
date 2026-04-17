@@ -31,11 +31,15 @@ M.timing = {
 }
 
 M.hotkeys = {
-	enabled = false,
+	enabled = true,
 	moveUnderLeft = { mods = { "ctrl", "alt", "cmd" }, key = "1" },
 	moveUnderMiddle = { mods = { "ctrl", "alt", "cmd" }, key = "2" },
 	moveUnderRight = { mods = { "ctrl", "alt", "cmd" }, key = "3" },
 	arrangeZenGhostty = { mods = { "ctrl", "alt", "cmd" }, key = "0" },
+	focusWindowWest = { mods = { "cmd", "shift" }, key = "h" },
+	focusWindowEast = { mods = { "cmd", "shift" }, key = "l" },
+	focusWindowNorth = { mods = { "cmd", "shift" }, key = "k" },
+	focusWindowSouth = { mods = { "cmd", "shift" }, key = "j" },
 }
 
 return M

@@ -20,3 +20,4 @@ end
 
 -- Optional hotkeys
 hotkeys.bind()
+

@@ -1,13 +1,10 @@
 fastfetch
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
+
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
 if [[ -f "/opt/homebrew/bin/brew" ]] then
-  # If you're using macOS, you'll want this enabled
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
@@ -100,6 +97,7 @@ alias v='nvim'
 alias vdiff='nvim -d'
 alias fzfe='fzf -m --preview="bat --color=always {}" --bind "enter:become(nvim {+})"' 
 
+
 # Command line
 alias ls="eza --icons=always"
 alias lst="eza -lah -snew"
@@ -110,11 +108,11 @@ alias zshrc='nvim ~/.zshrc'
 alias vhist='nvim ~/.zsh_history'
 alias cpindex='echo "file://$PWD/index.html" | pbcopy'
 alias tpcomp='typst compile davidResume.typ && pwd | pbcopy'
-alias normal='~/util/toggle_sleep/toggle_sleep.sh normal normal normal'
-alias never='~/util/toggle_sleep/toggle_sleep.sh never never never'
-alias dleft='~/util/hammerspoon/display-pos.sh left'
-alias dmiddle='~/util/hammerspoon/display-pos.sh middle'
-alias dright='~/util/hammerspoon/display-pos.sh right'
+alias normal='~/util/display_manip/toggle_sleep.sh normal normal normal'
+alias never='~/util/display_manip/toggle_sleep.sh never never never'
+alias dleft='~/util/display_manip/display-pos.sh left'
+alias dmiddle='~/util/display_manip/display-pos.sh middle'
+alias dright='~/util/display_manip/display-pos.sh right'
 
 # Tmux
 alias ta='tmux attach -t'
@@ -158,6 +156,63 @@ add-zsh-hook chpwd conda_auto_activate
 add-zsh-hook chpwd change_ls
 add-zsh-hook chpwd open_nvim_config
 
+# fzf with actions
+ff() {
+  local selected action abs target_dir
+
+  selected="$(
+    fd \
+      --hidden \
+      --follow \
+      --exclude .git \
+      --exclude .cargo \
+      --exclude .vscode \
+      --exclude .conda \
+      --exclude PyCharm.app \
+      --exclude node_modules \
+      --exclude Library \
+    | fzf --preview="bat --color=always {}"
+  )" || return 1
+
+  abs="${PWD}/${selected}"
+
+  action="$(
+    printf '%s\n' \
+      'Open in Finder' \
+      'Open in $EDITOR' \
+      'Copy filepath' \
+      'cd into directory' |
+    fzf \
+      --prompt='Action > ' \
+      --height=20% \
+      --reverse \
+      --cycle \
+      --bind='tab:down,btab:up'
+  )" || return 1
+
+  case "$action" in
+    'Open in Finder')
+      open -R -- "$abs"
+      ;;
+    'Open in $EDITOR')
+      "${EDITOR:-vim}" -- "$abs"
+      ;;
+    'Copy filepath')
+      printf '%s' "$abs" | pbcopy
+      echo "Copied: $abs"
+      ;;
+    'cd into directory')
+      if [ -d "$abs" ]; then
+        cd -- "$abs" || return
+      else
+        target_dir="$(dirname -- "$abs")"
+        cd -- "$target_dir" || return
+      fi
+      ;;
+  esac
+}
+
+
 
 # Shell integrations
 eval "$(fzf --zsh)"
@@ -185,7 +240,7 @@ unset __conda_setup
 export PATH=$PATH:$HOME/go/bin
 
 # Generated for envman. Do not edit.
-[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+# [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
 export PATH=$PATH:$HOME/.local/opt/go/bin
 export PATH=$PATH:$HOME/go/bin
 export PATH=$PATH:$HOME/go/bin
