@@ -1,0 +1,10 @@
+{
+  "exclusionRules": [
+    {
+      "passKeys": "",
+      "pattern": "https://monkeytype.com"
+    }
+  ],
+  "keyMappings": "unmap r\nunmap R\nunmap e\nunmap b\nunmap x\nunmap t\nmap t visitPreviousTab\nunmap d\nunmap u\nmap <c-d> scrollFullPageDown\nmap <c-u> scrollFullPageUp\nunmap j\nunmap k\nmap j scrollPageDown\nmap k scrollPageUp\nunmap J\nunmap K\nmap J nextTab\nmap K previousTab",
+  "settingsVersion": "2.4.2"
+}
