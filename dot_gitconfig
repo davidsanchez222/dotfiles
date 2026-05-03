@@ -18,5 +18,8 @@
 
   # remove file(s) from Git but not from disk
   untrack = rm --cache --
+
+  # series of commands to sync my fork with upstream open source project
+  update = !git checkout main && git fetch upstream && git merge upstream/main && git push origin main && :
 [core]
 	editor = nvim

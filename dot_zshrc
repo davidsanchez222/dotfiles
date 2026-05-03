@@ -51,10 +51,15 @@ bindkey '^n' history-search-forward
 bindkey '^@' autosuggest-accept
 bindkey '^[w' kill-region
 bindkey -r '^J' # prevent ctrl-j from carriage return
+bindkey -r '^L' # prevent ctrl-l from clearing screen
 
 # insert git commit template (ctrl+j, g, c)
 # \C-b moves cursor back one position
 bindkey -s '^Jgc' 'git commit -m ""\C-b'
+
+# find processes with ripgrep (ctrl+j, f, p)
+bindkey -s '^Jfp' 'ps aux | rg -i --smart-case ""\C-b'
+
 
 # copy output: turn current buffer into `echo $(current buffer) | pbcopy` and run it
 copy-output-widget() {
@@ -64,10 +69,34 @@ copy-output-widget() {
 zle -N copy-output-widget
 bindkey '^Jco' copy-output-widget
 
-copy-input-widget() {
-  print -rn -- "$BUFFER" | pbcopy
-  # zle -M "Copied command line to clipboard"
+copy-input-clear-message() {
+  local fd=$1
+
+  # consume the byte/EOF and unregister the handler.
+  read -r _ <&$fd
+  zle -F $fd
+  exec {fd}<&-
+
+  zle -M ""
+  zle -R
 }
+
+copy-input-widget() {
+  if [[ -n $BUFFER ]]; then
+    print -rn -- "$BUFFER" | pbcopy
+    zle -M "Copied command line to clipboard"
+    
+    # after half a second, write to a pipe that ZLE is watching.
+    exec {fd}< <(sleep 0.5)
+    zle -F $fd copy-input-clear-message
+  else
+    zle -M "Nothing to copy"
+
+    exec {fd}< <(sleep 0.5)
+    zle -F $fd copy-input-clear-message
+  fi
+}
+
 zle -N copy-input-widget
 bindkey '^Jci' copy-input-widget
 
@@ -96,7 +125,6 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=always $realpat
 alias v='nvim'
 alias vdiff='nvim -d'
 alias fzfe='fzf -m --preview="bat --color=always {}" --bind "enter:become(nvim {+})"' 
-
 
 # Command line
 alias ls="eza --icons=always"
@@ -162,15 +190,13 @@ ff() {
 
   selected="$(
     fd \
-      --hidden \
       --follow \
-      --exclude .git \
-      --exclude .cargo \
-      --exclude .vscode \
-      --exclude .conda \
-      --exclude PyCharm.app \
+      --exclude Applications \
       --exclude node_modules \
       --exclude Library \
+      --glob '!.*/**' \
+      --glob '!.config/**' \
+      --glob '!.config' \
     | fzf --preview="bat --color=always {}"
   )" || return 1
 
