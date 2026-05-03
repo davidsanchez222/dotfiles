@@ -9,15 +9,19 @@ local keymap = vim.keymap -- for conciseness
 -- clear search highlighting by pressing enter in normal mode
 keymap.set("n", "<CR>", ":nohlsearch<CR><CR>", { noremap = true, silent = true })
 
+keymap.set("n", "<leader>re", "<cmd>restart<cr>", {
+	desc = "Restart Neovim (:restart)",
+})
+
 -- disable arrow keys
-vim.keymap.set("", "<up>", "<nop>", { noremap = true })
-vim.keymap.set("", "<down>", "<nop>", { noremap = true })
-vim.keymap.set("", "<left>", "<nop>", { noremap = true })
-vim.keymap.set("", "<right>", "<nop>", { noremap = true })
-vim.keymap.set("i", "<up>", "<nop>", { noremap = true })
-vim.keymap.set("i", "<down>", "<nop>", { noremap = true })
-vim.keymap.set("i", "<left>", "<nop>", { noremap = true })
-vim.keymap.set("i", "<right>", "<nop>", { noremap = true })
+keymap.set("", "<up>", "<nop>", { noremap = true })
+keymap.set("", "<down>", "<nop>", { noremap = true })
+keymap.set("", "<left>", "<nop>", { noremap = true })
+keymap.set("", "<right>", "<nop>", { noremap = true })
+keymap.set("i", "<up>", "<nop>", { noremap = true })
+keymap.set("i", "<down>", "<nop>", { noremap = true })
+keymap.set("i", "<left>", "<nop>", { noremap = true })
+keymap.set("i", "<right>", "<nop>", { noremap = true })
 
 -- delete single character without copying into register
 keymap.set("n", "x", '"_x')

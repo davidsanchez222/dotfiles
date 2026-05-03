@@ -26,6 +26,6 @@ return {
 				hidden = true,
 			})
 			term:toggle()
-		end, { desc = "New floating terminal" })
+		end, { desc = "Toggle floating terminal" })
 	end,
 }
