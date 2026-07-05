@@ -132,3 +132,4 @@ $env.config.keybindings = (
 # one-time:
 #   zoxide init nushell | save -f ~/.zoxide.nu
 source ~/.zoxide.nu
+source "~/.cargo/env.nu"
