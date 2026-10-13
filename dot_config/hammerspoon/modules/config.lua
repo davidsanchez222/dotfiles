@@ -1,11 +1,31 @@
 local M = {}
 
-M.autoArrangeOnScreenChange = false
+M.autoArrangeOnScreenChange = true
+
+M.dock = {
+	monitorName = "AW3426DWM",
+}
+
+M.btt = {
+	dockedVariable = "hs_docked",
+	actions = {
+		moveWindowRight = 152, -- Move Window One Space or Desktop Right
+		spaceLeft = 527, -- Move Left a Space (Without Animation)
+	},
+}
+
+M.karabiner = {
+	cli = "/Library/Application Support/org.pqrs/Karabiner-Elements/bin/karabiner_cli",
+	dockedVariable = "hs_docked",
+}
 
 M.apps = {
 	zen = "Zen",
 	ghostty = "Ghostty",
 }
+
+-- Undocked: other windows on Desktop 1 get maximized behind Zen, except these
+M.keepSizeApps = { "Finder" }
 
 M.raycast = {
 	left = { mods = { "alt" }, key = "h" },
@@ -24,9 +44,9 @@ M.timing = {
 	afterMoveToScreen = 0.20,
 	beforeRaycastKey = 0.10,
 	secondWindowDelay = 0.45,
-	afterMoveToSpace = 0.50,
 	afterGotoSpace = 0.60,
-	finalReturnDelay = 2.40,
+	afterBttAction = 0.60,
+	otherWindowDelay = 0.35,
 	screenWatcherDelay = 1.00,
 }
 

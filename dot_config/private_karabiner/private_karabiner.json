@@ -5,6 +5,51 @@
                 "parameters": { "basic.to_if_alone_timeout_milliseconds": 500 },
                 "rules": [
                     {
+                        "description": "Hyper+H/L -> Cmd+Shift+H/L when docked (hs_docked set by Hammerspoon)",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "hs_docked",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "h",
+                                    "modifiers": { "mandatory": ["shift", "control", "option", "command"] }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "h",
+                                        "modifiers": ["left_command", "left_shift"]
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "conditions": [
+                                    {
+                                        "name": "hs_docked",
+                                        "type": "variable_if",
+                                        "value": 1
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "l",
+                                    "modifiers": { "mandatory": ["shift", "control", "option", "command"] }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "l",
+                                        "modifiers": ["left_command", "left_shift"]
+                                    }
+                                ],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "Post Esc if Caps is tapped, Control if held. Esc key becomes Caps Lock on built-in keyboard",
                         "manipulators": [
                             {

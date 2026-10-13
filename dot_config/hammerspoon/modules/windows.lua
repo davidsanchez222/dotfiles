@@ -4,13 +4,31 @@ local spaces = require("hs.spaces")
 local M = {}
 
 local screenWatcher = nil
+local karabinerWatcher = nil
 
 local function appName(which)
 	return config.apps[which]
 end
 
+local logFile = os.getenv("HOME") .. "/.config/hammerspoon/zen-ghostty.log"
+
 local function logf(fmt, ...)
-	hs.printf("[zen-ghostty] " .. fmt, ...)
+	local line = string.format("[zen-ghostty] " .. fmt, ...)
+	hs.printf("%s", line)
+	local f = io.open(logFile, "a")
+	if f then
+		f:write(os.date("%H:%M:%S "), line, "\n")
+		f:close()
+	end
+end
+
+M.logf = logf
+
+-- Mirror Lua errors from callbacks/timers into the log file too
+local origShowError = hs.showError
+hs.showError = function(err)
+	logf("LUA ERROR: %s", tostring(err))
+	return origShowError(err)
 end
 
 local function sendRaycast(binding)
@@ -35,9 +53,59 @@ local function getBuiltinAndExternal()
 	return builtin, external
 end
 
-local function hasExternalDisplay()
-	local _, external = getBuiltinAndExternal()
-	return external ~= nil
+local function getBuiltinScreen()
+	local builtin = getBuiltinAndExternal()
+	return builtin or hs.screen.primaryScreen()
+end
+
+local function getDockMonitor()
+	for _, screen in ipairs(hs.screen.allScreens()) do
+		if (screen:name() or ""):find(config.dock.monitorName, 1, true) then
+			return screen
+		end
+	end
+	return nil
+end
+
+function M.isDocked()
+	return getDockMonitor() ~= nil
+end
+
+local function bttAction(actionType, callback)
+	local json = string.format('{"BTTPredefinedActionType":%d}', actionType)
+	local script = string.format('tell application "BetterTouchTool" to trigger_action %q', json)
+	hs.task.new("/usr/bin/osascript", function(code)
+		logf("BTT action %d exit=%s", actionType, tostring(code))
+		if callback then
+			callback()
+		end
+	end, { "-e", script }):start()
+end
+
+local function setBttDocked(docked)
+	local value = docked and "1" or "0"
+	local script = string.format(
+		'tell application "BetterTouchTool" to set_persistent_string_variable "%s" to "%s"',
+		config.btt.dockedVariable,
+		value
+	)
+	-- Async: a blocking AppleScript call can deadlock with BTT opening hammerspoon:// URLs
+	hs.task.new("/usr/bin/osascript", function(code)
+		logf("set BTT %s=%s exit=%s", config.btt.dockedVariable, value, tostring(code))
+	end, { "-e", script }):start()
+end
+
+-- Karabiner rewrites Hyper+H/L to Cmd+Shift+H/L while this is 1
+local function setKarabinerDocked(docked)
+	local vars = string.format('{"%s":%d}', config.karabiner.dockedVariable, docked and 1 or 0)
+	hs.task.new(config.karabiner.cli, function(code)
+		logf("set Karabiner %s exit=%s", vars, tostring(code))
+	end, { "--set-variables", vars }):start()
+end
+
+local function setDockedFlags(docked)
+	setKarabinerDocked(docked)
+	setBttDocked(docked)
 end
 
 local function findWindowForApp(appNameValue)
@@ -116,83 +184,6 @@ local function moveWindowToScreen(win, screen, label)
 	win:moveToScreen(screen, false, true)
 	logf("moved %s to screen %s", label or "window", screen:name() or "unknown")
 	return true, "Moved " .. (label or "window") .. " to screen"
-end
-
-local function moveWindowToSpace(win, spaceID, label)
-	if not win or not spaceID then
-		return false, "Missing window or space for " .. (label or "window")
-	end
-
-	spaces.moveWindowToSpace(win, spaceID, true)
-	logf("moved %s to space %s", label or "window", tostring(spaceID))
-	return true, "Moved " .. (label or "window") .. " to space"
-end
-
-local function windowIsInSpace(win, spaceID)
-	if not win or not spaceID then
-		return false
-	end
-
-	local ids = spaces.windowSpaces(win)
-	if not ids then
-		return false
-	end
-
-	for _, id in ipairs(ids) do
-		if id == spaceID then
-			return true
-		end
-	end
-
-	return false
-end
-
-local function moveWindowToSpaceWithRetry(appNameValue, spaceID, label, attempt, callback)
-	attempt = attempt or 1
-	local maxTries = config.timing.spaceMoveMaxTries
-	local win, app = findWindowForApp(appNameValue)
-
-	if not win then
-		logf("no window for %s during move attempt %d", appNameValue, attempt)
-		if attempt < maxTries then
-			hs.timer.doAfter(config.timing.spaceMoveRetryDelay, function()
-				moveWindowToSpaceWithRetry(appNameValue, spaceID, label, attempt + 1, callback)
-			end)
-			return
-		end
-
-		if callback then
-			callback(false, nil, app)
-		end
-		return
-	end
-
-	if app then
-		app:activate(true)
-	end
-	win:raise():focus()
-	spaces.moveWindowToSpace(win, spaceID, true)
-	logf("move attempt %d for %s to space %s", attempt, label or appNameValue, tostring(spaceID))
-
-	hs.timer.doAfter(config.timing.spaceMoveRetryDelay, function()
-		local ok = windowIsInSpace(win, spaceID)
-		logf("%s in space after attempt %d = %s", label or appNameValue, attempt, tostring(ok))
-		if ok then
-			if callback then
-				callback(true, win, app)
-			end
-			return
-		end
-
-		if attempt < maxTries then
-			moveWindowToSpaceWithRetry(appNameValue, spaceID, label, attempt + 1, callback)
-			return
-		end
-
-		if callback then
-			callback(false, win, app)
-		end
-	end)
 end
 
 local function focusWindowThen(win, app, appNameValue, label, afterDelay, fn)
@@ -289,37 +280,6 @@ local function orderedSpacesForScreen(screen)
 	return ids
 end
 
-local function waitForWindowInSpace(win, spaceID, label, triesLeft, callback)
-	triesLeft = triesLeft or config.timing.screenPollMaxTries
-
-	if not win or not spaceID then
-		if callback then
-			callback(false)
-		end
-		return
-	end
-
-	if windowIsInSpace(win, spaceID) then
-		logf("%s is in target space", label or "window")
-		if callback then
-			callback(true)
-		end
-		return
-	end
-
-	if triesLeft <= 1 then
-		logf("%s did not reach target space", label or "window")
-		if callback then
-			callback(false)
-		end
-		return
-	end
-
-	hs.timer.doAfter(config.timing.screenPollInterval, function()
-		waitForWindowInSpace(win, spaceID, label, triesLeft - 1, callback)
-	end)
-end
-
 function M.moveLaptopUnder(position)
 	local laptop, wide = getBuiltinAndExternal()
 
@@ -356,10 +316,16 @@ function M.moveLaptopUnder(position)
 	return true, "Laptop is primary; external is above; alignment = " .. position
 end
 
-local function arrangeOnExternal()
-	local _, external = getBuiltinAndExternal()
+local function arrangeOnExternal(onDone)
+	local external = getDockMonitor()
 	if not external then
-		return false, "No external display found"
+		return false, "Dock monitor not found"
+	end
+
+	local function done()
+		if onDone then
+			hs.timer.doAfter(config.timing.secondWindowDelay, onDone)
+		end
 	end
 
 	logf("arranging on external display")
@@ -376,11 +342,13 @@ local function arrangeOnExternal()
 					focusWindowThen(ghosttyWin, ghosttyApp, appName("ghostty"), "Ghostty", config.timing.beforeRaycastKey, function()
 						sendRaycast(config.raycast.right)
 						logf("sent Option+L to Ghostty")
+						done()
 					end)
 				end)
 			end)
 		end, nil, function()
 			logf("ghostty window not found")
+			done()
 		end)
 	end
 
@@ -408,11 +376,27 @@ local function arrangeOnExternal()
 	return true, "Zen left, Ghostty right on ultrawide"
 end
 
-local function arrangeOnLaptopOnly()
-	local builtin = hs.screen.primaryScreen()
+local function arrangeOnLaptopOnly(onDone)
+	local builtin = getBuiltinScreen()
 	local userSpaces = orderedSpacesForScreen(builtin)
 
+	local function done()
+		if onDone then
+			onDone()
+		end
+	end
+
+	logf("laptop-only: screen=%s userSpaces=%s active=%s", builtin and builtin:name() or "nil",
+		table.concat(userSpaces, ","), tostring(spaces.activeSpaceOnScreen(builtin)))
+	for _, name in ipairs({ appName("zen"), appName("ghostty") }) do
+		local w = findWindowForApp(name)
+		logf("  %s window=%s screen=%s", name, tostring(w and w:id()),
+			w and w:screen() and w:screen():name() or "nil")
+	end
+
 	if #userSpaces < 2 then
+		logf("laptop-only: fewer than 2 user spaces, aborting")
+		done()
 		return false, "Need at least 2 user spaces on laptop display"
 	end
 
@@ -421,84 +405,201 @@ local function arrangeOnLaptopOnly()
 
 	logf("arranging on laptop spaces %s and %s", tostring(space1), tostring(space2))
 
-	local function moveAndFocusGhostty()
-		local function finishGhosttyFocus()
-			logf("goto space2=%s", tostring(space2))
-			spaces.gotoSpace(space2)
-
-			hs.timer.doAfter(config.timing.afterGotoSpace, function()
-				launchAndGetWindow(appName("ghostty"), function(ghosttyWin2, ghosttyApp2)
-					focusWindowThen(ghosttyWin2, ghosttyApp2, appName("ghostty"), "Ghostty", config.timing.beforeRaycastKey, function()
-						sendRaycast(config.raycast.maximize)
-						logf("sent Option+M to Ghostty")
-						hs.timer.doAfter(config.timing.finalReturnDelay, function()
-						spaces.gotoSpace(space1)
-						hs.alert.show("Zen in Space 1, Ghostty in Space 2")
-					end)
-					end)
-				end)
-			end)
-		end
-
-		moveWindowToSpaceWithRetry(appName("ghostty"), space2, "Ghostty", 1, function(ok)
-			if ok then
-				finishGhosttyFocus()
-				return
-			end
-
-			logf("ghostty move failed, retrying after goto space2")
-			spaces.gotoSpace(space2)
-			hs.timer.doAfter(config.timing.afterGotoSpace, function()
-				moveWindowToSpaceWithRetry(appName("ghostty"), space2, "Ghostty", 1, function(ok2)
-					if ok2 then
-						finishGhosttyFocus()
-						return
-					end
-
-					logf("ghostty move failed after fallback")
-					spaces.gotoSpace(space1)
+	-- hs.spaces.moveWindowToSpace silently fails on macOS 14.5+, so BTT moves the
+	-- focused window one Desktop right (it follows the window there)
+	local function returnToSpace1()
+		bttAction(config.btt.actions.spaceLeft, function()
+			hs.timer.doAfter(config.timing.afterBttAction, function()
+				local zenWin, zenApp = findWindowForApp(appName("zen"))
+				focusWindowThen(zenWin, zenApp, appName("zen"), "Zen", config.timing.beforeRaycastKey, function()
+					hs.alert.show("Zen in Desktop 1, Ghostty in Desktop 2")
+					done()
 				end)
 			end)
 		end)
+	end
+
+	local function maximizeGhosttyOnSpace2()
+		launchAndGetWindow(appName("ghostty"), function(ghosttyWin, ghosttyApp)
+			logf("ghostty focused space=%s", tostring(spaces.focusedSpace()))
+			focusWindowThen(ghosttyWin, ghosttyApp, appName("ghostty"), "Ghostty", config.timing.beforeRaycastKey, function()
+				sendRaycast(config.raycast.maximize)
+				logf("sent Option+M to Ghostty")
+				hs.timer.doAfter(config.timing.secondWindowDelay, returnToSpace1)
+			end)
+		end, nil, done)
+	end
+
+	local function moveAndFocusGhostty()
+		launchAndGetWindow(appName("ghostty"), function(ghosttyWin, ghosttyApp)
+			focusWindowThen(ghosttyWin, ghosttyApp, appName("ghostty"), "Ghostty", config.timing.beforeRaycastKey, function()
+				-- Focusing switches to the window's Desktop, so this tells us where it is
+				local current = spaces.focusedSpace()
+				logf("ghostty is on space %s", tostring(current))
+				if current == space2 then
+					maximizeGhosttyOnSpace2()
+					return
+				end
+
+				logf("BTT: move Ghostty one Desktop right")
+				bttAction(config.btt.actions.moveWindowRight, function()
+					hs.timer.doAfter(config.timing.afterBttAction, maximizeGhosttyOnSpace2)
+				end)
+			end)
+		end, nil, done)
 	end
 
 	local function moveAndFocusZen()
 		launchAndGetWindow(appName("zen"), function(zenWin, zenApp)
-			local _, msg = moveWindowToSpace(zenWin, space1, "Zen")
-			if msg then
-				logf("%s", msg)
-			end
+			focusWindowThen(zenWin, zenApp, appName("zen"), "Zen", config.timing.beforeRaycastKey, function()
+				logf("zen is on space %s", tostring(spaces.focusedSpace()))
+				sendRaycast(config.raycast.maximize)
+				logf("sent Option+M to Zen")
+				hs.timer.doAfter(config.timing.secondWindowDelay, moveAndFocusGhostty)
+			end)
+		end, nil, done)
+	end
 
-			hs.timer.doAfter(config.timing.afterMoveToSpace, function()
-				local inSpace = windowIsInSpace(zenWin, space1)
-				logf("zen in space1=%s", tostring(inSpace))
-				logf("goto space1=%s", tostring(space1))
-				spaces.gotoSpace(space1)
+	-- Maximize every other window on Desktop 1 first, so Zen ends up on top
+	local function maximizeOthers(queue)
+		local win = table.remove(queue, 1)
+		if not win then
+			moveAndFocusZen()
+			return
+		end
 
-				hs.timer.doAfter(config.timing.afterGotoSpace, function()
-					launchAndGetWindow(appName("zen"), function(zenWin2, zenApp2)
-						focusWindowThen(zenWin2, zenApp2, appName("zen"), "Zen", config.timing.beforeRaycastKey, function()
-							sendRaycast(config.raycast.maximize)
-							logf("sent Option+M to Zen")
-							hs.timer.doAfter(config.timing.secondWindowDelay, moveAndFocusGhostty)
-						end)
-					end)
-				end)
+		local app = win:application()
+		focusWindowThen(win, app, app and app:name(), app and app:name(), config.timing.beforeRaycastKey, function()
+			sendRaycast(config.raycast.maximize)
+			logf("sent Option+M to %s", app and app:name() or "?")
+			hs.timer.doAfter(config.timing.otherWindowDelay, function()
+				maximizeOthers(queue)
 			end)
 		end)
 	end
 
-	moveAndFocusZen()
+	local skip = { [appName("zen")] = true, [appName("ghostty")] = true, Hammerspoon = true }
+	for _, name in ipairs(config.keepSizeApps) do
+		skip[name] = true
+	end
+
+	local others = {}
+	for _, win in ipairs(hs.window.orderedWindows()) do
+		local app = win:application()
+		local screen = win:screen()
+		if win:isStandard() and app and not skip[app:name()] and screen and screen:id() == builtin:id() then
+			table.insert(others, win)
+		end
+	end
+	logf("other windows to maximize: %d", #others)
+
+	maximizeOthers(others)
 
 	return true, "Arranging Zen/Ghostty on laptop spaces"
 end
 
-function M.arrangeZenGhostty()
-	if hasExternalDisplay() then
-		return arrangeOnExternal()
+function M.arrangeZenGhostty(onDone)
+	if M.isDocked() then
+		return arrangeOnExternal(onDone)
 	else
-		return arrangeOnLaptopOnly()
+		return arrangeOnLaptopOnly(onDone)
 	end
+end
+
+local function removeExtraLaptopSpaces(callback)
+	local builtin = getBuiltinScreen()
+	local userSpaces = userSpacesForScreen(builtin)
+	local function done()
+		if callback then
+			callback()
+		end
+	end
+
+	if #userSpaces < 2 then
+		done()
+		return
+	end
+
+	local keep = userSpaces[1]
+
+	-- Windows on removed Desktops land on Desktop 1, where the external arrangement picks them up
+	local function removeRest()
+		for i = 2, #userSpaces do
+			local ok, err = spaces.removeSpace(userSpaces[i], true)
+			logf("remove laptop space %s ok=%s %s", tostring(userSpaces[i]), tostring(ok), tostring(err or ""))
+		end
+		hs.timer.doAfter(config.timing.afterGotoSpace, done)
+	end
+
+	if spaces.activeSpaceOnScreen(builtin) ~= keep then
+		-- BTT's instant switch avoids the Mission Control animation of gotoSpace
+		bttAction(config.btt.actions.spaceLeft, function()
+			hs.timer.doAfter(config.timing.afterBttAction, removeRest)
+		end)
+	else
+		removeRest()
+	end
+end
+
+local function ensureLaptopSpaces(count, callback)
+	local builtin = getBuiltinScreen()
+	local have = #userSpacesForScreen(builtin)
+
+	for _ = have + 1, count do
+		local ok, err = spaces.addSpaceToScreen(builtin, true)
+		logf("add laptop space ok=%s %s", tostring(ok), tostring(err or ""))
+	end
+
+	logf("laptop spaces now: %s", table.concat(userSpacesForScreen(builtin), ","))
+	hs.timer.doAfter(config.timing.afterGotoSpace, callback)
+end
+
+local lastDocked = nil
+local busy = false
+local busyTimeout = nil
+
+local finishTransition
+
+local function applyDockState()
+	local docked = M.isDocked()
+	if docked == lastDocked then
+		return
+	end
+
+	if busy then
+		logf("dock state changed while busy; will re-check")
+		return
+	end
+
+	lastDocked = docked
+	busy = true
+	logf("dock transition: docked=%s", tostring(docked))
+	setDockedFlags(docked)
+
+	-- Safety net in case an arrangement step never calls back
+	busyTimeout = hs.timer.doAfter(20, finishTransition)
+
+	if docked then
+		removeExtraLaptopSpaces(function()
+			arrangeOnExternal(finishTransition)
+		end)
+	else
+		ensureLaptopSpaces(2, function()
+			arrangeOnLaptopOnly(finishTransition)
+		end)
+	end
+end
+
+finishTransition = function()
+	if busyTimeout then
+		busyTimeout:stop()
+		busyTimeout = nil
+	end
+	if not busy then
+		return
+	end
+	busy = false
+	hs.timer.doAfter(config.timing.screenWatcherDelay, applyDockState)
 end
 
 function M.startScreenWatcher()
@@ -506,10 +607,29 @@ function M.startScreenWatcher()
 		return
 	end
 
+	-- Seed state without rearranging on reload, but keep BTT in sync
+	lastDocked = M.isDocked()
+	setDockedFlags(lastDocked)
+
+	-- Karabiner drops its variables when its config reloads, so re-send ours
+	karabinerWatcher = hs.pathwatcher.new(os.getenv("HOME") .. "/.config/karabiner", function(paths)
+		for _, path in ipairs(paths) do
+			if path:match("karabiner%.json$") then
+				hs.timer.doAfter(1, function()
+					setKarabinerDocked(lastDocked)
+				end)
+				return
+			end
+		end
+	end):start()
+
 	screenWatcher = hs.screen.watcher.new(function()
-		hs.timer.doAfter(config.timing.screenWatcherDelay, function()
-			M.arrangeZenGhostty()
-		end)
+		local names = {}
+		for _, sc in ipairs(hs.screen.allScreens()) do
+			table.insert(names, sc:name() or "?")
+		end
+		logf("screen watcher fired: %s (lastDocked=%s busy=%s)", table.concat(names, ", "), tostring(lastDocked), tostring(busy))
+		hs.timer.doAfter(config.timing.screenWatcherDelay, applyDockState)
 	end)
 
 	screenWatcher:start()
@@ -519,6 +639,10 @@ function M.stopScreenWatcher()
 	if screenWatcher then
 		screenWatcher:stop()
 		screenWatcher = nil
+	end
+	if karabinerWatcher then
+		karabinerWatcher:stop()
+		karabinerWatcher = nil
 	end
 end
 
