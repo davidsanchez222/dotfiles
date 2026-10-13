@@ -9,6 +9,44 @@ return {
 	config = function()
 		local cmp_nvim_lsp = require("cmp_nvim_lsp")
 		local keymap = vim.keymap
+		local gopls_semantic_legend = {
+			tokenTypes = {
+				"namespace",
+				"type",
+				"typeParameter",
+				"parameter",
+				"property",
+				"variable",
+				"function",
+				"method",
+				"macro",
+				"keyword",
+				"comment",
+				"string",
+				"number",
+				"operator",
+				"label",
+			},
+			tokenModifiers = {
+				"definition",
+				"readonly",
+				"defaultLibrary",
+				"static",
+				"array",
+				"bool",
+				"chan",
+				"format",
+				"interface",
+				"map",
+				"number",
+				"pointer",
+				"signature",
+				"slice",
+				"string",
+				"struct",
+				"shadowing",
+			},
+		}
 
 		local diagnostics_virtual_text_enabled = false
 		function _G.toggle_virtual_text()
@@ -34,6 +72,29 @@ return {
 			group = vim.api.nvim_create_augroup("UserLspConfig", {}),
 			callback = function(ev)
 				local opts = { buffer = ev.buf, silent = true }
+				local client = vim.lsp.get_client_by_id(ev.data.client_id)
+
+				if client and client.name == "gopls" then
+					if not client.server_capabilities.semanticTokensProvider then
+						client.server_capabilities.semanticTokensProvider = {
+							full = true,
+							legend = gopls_semantic_legend,
+						}
+						vim.lsp.semantic_tokens.enable(true, { client_id = client.id })
+					end
+
+					vim.api.nvim_create_autocmd("BufWritePre", {
+						group = vim.api.nvim_create_augroup("UserGoLspConfig", {}),
+						buffer = ev.buf,
+						callback = function(args)
+							vim.lsp.buf.code_action({
+								bufnr = args.buf,
+								context = { only = { "source.organizeImports" } },
+								apply = true,
+							})
+						end,
+					})
+				end
 
 				opts.desc = "Show LSP references"
 				keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", opts)
@@ -94,7 +155,11 @@ return {
 			end,
 		})
 
-		local capabilities = cmp_nvim_lsp.default_capabilities()
+		local capabilities = vim.tbl_deep_extend(
+			"force",
+			vim.lsp.protocol.make_client_capabilities(),
+			cmp_nvim_lsp.default_capabilities()
+		)
 
 		local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
 		vim.diagnostic.config({
@@ -126,6 +191,19 @@ return {
 			capabilities = capabilities,
 			-- cmd = { "tinymist" }, off: Mason, on: Homebrew
 			filetypes = { "typst" },
+		})
+
+		vim.lsp.config("gopls", {
+			capabilities = capabilities,
+			settings = {
+				gopls = {
+					semanticTokens = true,
+					analyses = {
+						unusedparams = true,
+					},
+					staticcheck = true,
+				},
+			},
 		})
 
 		vim.lsp.config("pyright", {

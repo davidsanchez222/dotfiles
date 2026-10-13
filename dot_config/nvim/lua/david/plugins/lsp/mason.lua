@@ -21,6 +21,7 @@ return {
 		opts = {
 			ensure_installed = {
 				"tinymist",
+				"gopls",
 				"lua_ls",
 				"pyright",
 				"html",
@@ -45,6 +46,7 @@ return {
 			ensure_installed = {
 				"prettier",
 				"stylua",
+				"goimports",
 				"isort",
 				"black",
 				"pylint",
