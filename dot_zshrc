@@ -109,6 +109,41 @@ bindkey -s '^Jgc' 'git commit -m ""\C-b'
 # find processes with ripgrep (ctrl+j, f, p)
 bindkey -s '^Jfp' 'ps aux | rg -i --smart-case ""\C-b'
 
+# view GitHub PR comments in nvim (ctrl+j, p, r)
+gh-pr-comments() {
+  if (( $# != 3 )); then
+    print -u2 "usage: gh-pr-comments OWNER REPO PR_NUMBER"
+    return 2
+  fi
+
+  local owner="$1"
+  local repo="$2"
+  local pr_number="$3"
+
+  gh api "/repos/${owner}/${repo}/pulls/${pr_number}/comments" \
+    | jq -r '.[] | "DIFF:\n\(.diff_hunk)\n\nCOMMENT:\n\(.body)\n\n---"' \
+    | nvim
+}
+
+# Fill owner, repo, and PR number; Tab advances while placeholders remain.
+gh-pr-comments-template-tab() {
+  if [[ $BUFFER == gh-pr-comments\ * && $BUFFER == *'<'*'>'* && $RBUFFER =~ '^([^<]*)(<owner>|<repo>|<pr-number>)' ]]; then
+    LBUFFER+="${match[1]}"
+    RBUFFER="${RBUFFER:$(( ${#match[1]} + ${#match[2]} ))}"
+    return 0
+  fi
+
+  zle "${GH_PR_COMMENTS_TAB_FALLBACK:-expand-or-complete}"
+}
+zle -N gh-pr-comments-template-tab
+
+gh-pr-comments-template() {
+  LBUFFER='gh-pr-comments '
+  RBUFFER='<owner> <repo> <pr-number>'
+  gh-pr-comments-template-tab
+}
+zle -N gh-pr-comments-template
+
 
 # copy output: turn current buffer into `echo $(current buffer) | pbcopy` and run it
 copy-output-widget() {
@@ -148,6 +183,15 @@ copy-input-widget() {
 
 zle -N copy-input-widget
 bindkey '^Jci' copy-input-widget
+
+copy-cwd-to-clipboard() {
+  print -n "$PWD" | pbcopy
+}
+
+zle -N copy-cwd-to-clipboard
+
+# 3. Bind the widget to a keystroke (e.g., Ctrl+X followed by Ctrl+P)
+bindkey '^Jpw' copy-cwd-to-clipboard
 
 # History
 HISTSIZE=10000
@@ -287,13 +331,42 @@ ff() {
   esac
 }
 
+imgscale() {
+  local scale="${1:-1}"
+  local input
 
+  echo "Paste GitHub img tag(s), then press Ctrl-D:"
+  input=$(cat)
+
+  echo "$input" | while IFS= read -r line; do
+    local width=$(echo "$line" | sed -n 's/.*width="\([0-9]*\)".*/\1/p')
+    local height=$(echo "$line" | sed -n 's/.*height="\([0-9]*\)".*/\1/p')
+
+    if [[ -z "$width" || -z "$height" ]]; then
+      echo "$line"
+      continue
+    fi
+
+    local new_width=$(printf "%.0f" "$(echo "$width * $scale" | bc -l)")
+    local new_height=$(printf "%.0f" "$(echo "$height * $scale" | bc -l)")
+
+    echo "$line" \
+      | sed "s/width=\"$width\"/width=\"$new_width\"/" \
+      | sed "s/height=\"$height\"/height=\"$new_height\"/"
+  done
+}
 
 # Shell integrations
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
 unalias zi
 alias zi='__zoxide_zi'
+
+# Bind after shell integrations so fzf-tab/fzf do not override these widgets.
+typeset -g GH_PR_COMMENTS_TAB_FALLBACK="${${(z)$(bindkey '^I')}[-1]}"
+[[ -z $GH_PR_COMMENTS_TAB_FALLBACK || $GH_PR_COMMENTS_TAB_FALLBACK == gh-pr-comments-template-tab ]] && GH_PR_COMMENTS_TAB_FALLBACK=expand-or-complete
+bindkey '^I' gh-pr-comments-template-tab
+bindkey '^Jpr' gh-pr-comments-template
 
 
 # >>> conda initialize >>>
@@ -323,9 +396,12 @@ export PATH=$PATH:$HOME/go/bin
 
 export PATH=$PATH:/Users/david/.spicetify
 
+export PATH="$HOME/.local/bin:$PATH"
+
 # opencode
 export PATH=/Users/david/.opencode/bin:$PATH
 
 export EDITOR="nvim"
 export VISUAL="$EDITOR"
 
+export PATH="$HOME/.local/opt/go/bin:$HOME/.local/bin:$PATH"
