@@ -20,7 +20,7 @@ sketchybar \
 	background.padding_left=4 \
 	background.border_width="$BORDER_WIDTH" \
 	background.border_color="$COLOR" \
-	background.color="$BAR_COLOR" \
+	background.color="$ITEM_BACKGROUND_COLOR" \
 	background.drawing=on \
 	script="$PLUGIN_DIR/bluetooth.sh" \
 	--subscribe bluetooth bluetooth_change

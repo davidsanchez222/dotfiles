@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-COLOR="$GREEN"
+COLOR="$CYAN"
 
 sketchybar \
 	--add item sound right \
@@ -14,8 +14,7 @@ sketchybar \
 	background.padding_right=5 \
 	background.border_width="$BORDER_WIDTH" \
 	background.border_color="$COLOR" \
-	background.color="$BAR_COLOR" \
+	background.color="$ITEM_BACKGROUND_COLOR" \
 	background.drawing=on \
 	script="$PLUGIN_DIR/sound.sh" \
 	--subscribe sound volume_change
-

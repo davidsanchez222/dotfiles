@@ -5,7 +5,7 @@ source "$HOME/.config/sketchybar/variables.sh"
 PERCENTAGE=$(pmset -g batt | grep -Eo "\d+%" | cut -d% -f1)
 CHARGING=$(pmset -g batt | grep 'AC Power')
 
-LABEL_COLOR="$CYAN"
+LABEL_COLOR="$GREEN"
 
 if [ "$PERCENTAGE" = "" ]; then
 	exit 0
@@ -31,9 +31,9 @@ if [ "$CHARGING" != "" ]; then
 	ICON=""
 fi
 
-if [ "$PERCENTAGE" -lt 10 ]; then
-	LABEL_COLOR="$RED"
-elif [ "$PERCENTAGE" -lt 20 ] && [ "$PERCENTAGE" -gt 10 ]; then
+if [ "$PERCENTAGE" -lt 11 ]; then
+	LABEL_COLOR="$DEEPRED"
+elif [ "$PERCENTAGE" -lt 21 ] && [ "$PERCENTAGE" -gt 10 ]; then
 	LABEL_COLOR="$YELLOW"
 fi
 
