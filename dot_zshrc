@@ -8,6 +8,52 @@ if [[ -f "/opt/homebrew/bin/brew" ]] then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+# Shell theme: uncomment one.
+export SHELL_THEME="gruvbox"
+# export SHELL_THEME="catppuccin-frappe"
+
+typeset -A ZSH_HIGHLIGHT_STYLES
+case "$SHELL_THEME" in
+  gruvbox)
+    export BAT_THEME="gruvbox-dark"
+    export LS_COLORS="di=38;5;109:ln=38;5;108:so=38;5;175:pi=38;5;214:ex=38;5;142:bd=38;5;167:cd=38;5;167:su=38;5;167:sg=38;5;214:tw=38;5;109:ow=38;5;109:st=38;5;175:mi=38;5;167:or=38;5;167:*.tar=38;5;214:*.tgz=38;5;214:*.zip=38;5;214:*.gz=38;5;214:*.bz2=38;5;214:*.xz=38;5;214:*.jpg=38;5;175:*.jpeg=38;5;175:*.png=38;5;175:*.gif=38;5;175:*.webp=38;5;175:*.mp3=38;5;108:*.mp4=38;5;108:*.mov=38;5;108:*.pdf=38;5;167"
+    export FZF_DEFAULT_OPTS="--color=fg:#ebdbb2,bg:#282828,hl:#fabd2f --color=fg+:#fbf1c7,bg+:#3c3836,hl+:#fe8019 --color=info:#83a598,prompt:#b8bb26,pointer:#fb4934,marker:#d3869b,spinner:#8ec07c,header:#928374"
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=245"
+    ZSH_HIGHLIGHT_STYLES[comment]="fg=245"
+    ZSH_HIGHLIGHT_STYLES[unknown-token]="fg=167"
+    ZSH_HIGHLIGHT_STYLES[reserved-word]="fg=214"
+    ZSH_HIGHLIGHT_STYLES[alias]="fg=108"
+    ZSH_HIGHLIGHT_STYLES[builtin]="fg=214"
+    ZSH_HIGHLIGHT_STYLES[function]="fg=109"
+    ZSH_HIGHLIGHT_STYLES[command]="fg=109"
+    ZSH_HIGHLIGHT_STYLES[precommand]="fg=175"
+    ZSH_HIGHLIGHT_STYLES[commandseparator]="fg=167"
+    ZSH_HIGHLIGHT_STYLES[path]="fg=223,underline"
+    ZSH_HIGHLIGHT_STYLES[globbing]="fg=175"
+    ZSH_HIGHLIGHT_STYLES[single-hyphen-option]="fg=214"
+    ZSH_HIGHLIGHT_STYLES[double-hyphen-option]="fg=214"
+    ;;
+  catppuccin-frappe)
+    export BAT_THEME="Catppuccin Frappe"
+    export LS_COLORS="di=38;5;111:ln=38;5;116:so=38;5;183:pi=38;5;222:ex=38;5;151:bd=38;5;210:cd=38;5;210:su=38;5;210:sg=38;5;222:tw=38;5;111:ow=38;5;111:st=38;5;183:mi=38;5;210:or=38;5;210:*.tar=38;5;222:*.tgz=38;5;222:*.zip=38;5;222:*.gz=38;5;222:*.bz2=38;5;222:*.xz=38;5;222:*.jpg=38;5;183:*.jpeg=38;5;183:*.png=38;5;183:*.gif=38;5;183:*.webp=38;5;183:*.mp3=38;5;116:*.mp4=38;5;116:*.mov=38;5;116:*.pdf=38;5;210"
+    export FZF_DEFAULT_OPTS="--color=fg:#c6d0f5,bg:#303446,hl:#e5c890 --color=fg+:#c6d0f5,bg+:#414559,hl+:#ef9f76 --color=info:#8caaee,prompt:#a6d189,pointer:#e78284,marker:#ca9ee6,spinner:#81c8be,header:#737994"
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=245"
+    ZSH_HIGHLIGHT_STYLES[comment]="fg=245"
+    ZSH_HIGHLIGHT_STYLES[unknown-token]="fg=210"
+    ZSH_HIGHLIGHT_STYLES[reserved-word]="fg=222"
+    ZSH_HIGHLIGHT_STYLES[alias]="fg=116"
+    ZSH_HIGHLIGHT_STYLES[builtin]="fg=222"
+    ZSH_HIGHLIGHT_STYLES[function]="fg=111"
+    ZSH_HIGHLIGHT_STYLES[command]="fg=111"
+    ZSH_HIGHLIGHT_STYLES[precommand]="fg=183"
+    ZSH_HIGHLIGHT_STYLES[commandseparator]="fg=210"
+    ZSH_HIGHLIGHT_STYLES[path]="fg=189,underline"
+    ZSH_HIGHLIGHT_STYLES[globbing]="fg=183"
+    ZSH_HIGHLIGHT_STYLES[single-hyphen-option]="fg=222"
+    ZSH_HIGHLIGHT_STYLES[double-hyphen-option]="fg=222"
+    ;;
+esac
+
 # Set the directory we want to store zinit and plugins
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 

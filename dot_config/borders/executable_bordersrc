@@ -2,10 +2,13 @@
 
 options=(
 	style=round
-	width=2.0
+	width=3.0
     hidpi=on
     # active_color=0xff91d2ff
-    active_color=0xff8caaee
+    # active_color=0xff8caaee
+    
+    active_color=0xffabb66f
+    # active_color=0xff92ae8b
 	inactive_color=0xFFFFFFFF
 
     borders order=above

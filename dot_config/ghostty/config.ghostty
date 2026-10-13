@@ -1,15 +1,19 @@
-font-size = 17
-font-family = "Monaco"
+font-size = 18
+# font-family = "Monaco"
+font-family = Ioskeley Mono Term
 macos-titlebar-style = tabs
+# macos-titlebar-style = hidden
 macos-window-buttons = hidden
-theme = Catppuccin Frappe
+# theme = Catppuccin Frappe
+theme = Gruvbox Material Dark
 window-width = 146
 window-height = 36
 window-padding-x = 10
 window-padding-y = 18
 background-opacity = 0.8
-background-blur = 20
+background-blur = 80
 window-colorspace = "display-p3"
+font-feature = -calt
 
 window-inherit-working-directory = true
 auto-update-channel = tip
@@ -20,6 +24,7 @@ keybind = performable:ctrl+j=goto_split:down
 keybind = performable:ctrl+k=goto_split:up
 keybind = performable:ctrl+l=goto_split:right
 keybind = global:super+shift+ctrl+alt+t=toggle_quick_terminal
+keybind = super+shift+c=write_screen_file:copy
 
 # <cmd + ,> to run ghostty +edit-config
 keybind = unconsumed:super+,=text:\x1bqghostty +edit-config\x0d
