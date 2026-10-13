@@ -27,6 +27,7 @@ return {
 		})
 
 		cmp.setup({
+			preselect = cmp.PreselectMode.None,
 			completion = {
 				completeopt = "menu,menuone,preview,noselect",
 			},
@@ -36,14 +37,14 @@ return {
 				end,
 			},
 			mapping = cmp.mapping.preset.insert({
-				["<C-p>"] = cmp.mapping.select_prev_item(), -- previous suggestion
-				["<C-n>"] = cmp.mapping.select_next_item(), -- next suggestion
+				["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }), -- previous suggestion
+				["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }), -- next suggestion
 				["<C-b>"] = cmp.mapping.scroll_docs(-4),
 				["<C-f>"] = cmp.mapping.scroll_docs(4),
 				["<C-Space>"] = cmp.mapping.complete(), -- show completion suggestions
 				["<C-e>"] = cmp.mapping.abort(), -- close completion window
 				["<CR>"] = cmp.mapping(
-					cmp.mapping.confirm({ select = true, behavior = cmp.ConfirmBehavior.Insert }),
+					cmp.mapping.confirm({ select = false, behavior = cmp.ConfirmBehavior.Insert }),
 					{ "i" }
 				),
 			}),

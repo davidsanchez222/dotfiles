@@ -3,6 +3,84 @@ return {
 		"folke/noice.nvim",
 		event = "VeryLazy",
 		enabled = true,
+		-- config = function(_, opts)
+		-- 	require("noice").setup(opts)
+		--
+		-- 	local macro_buf
+		-- 	local macro_win
+		-- 	local group = vim.api.nvim_create_augroup("david_macro_recording_notify", { clear = true })
+		--
+		-- 	local function close_macro_popup()
+		-- 		if macro_win and vim.api.nvim_win_is_valid(macro_win) then
+		-- 			vim.api.nvim_win_close(macro_win, true)
+		-- 		end
+		-- 		if macro_buf and vim.api.nvim_buf_is_valid(macro_buf) then
+		-- 			vim.api.nvim_buf_delete(macro_buf, { force = true })
+		-- 		end
+		-- 		macro_win = nil
+		-- 		macro_buf = nil
+		-- 	end
+		--
+		-- 	local function open_macro_popup(register)
+		-- 		close_macro_popup()
+		--
+		-- 		local text = "recording @" .. register
+		-- 		local width = math.max(vim.api.nvim_strwidth(text) + 4, 20)
+		-- 		local col = math.max(vim.o.columns - width - 2, 0)
+		--
+		-- 		macro_buf = vim.api.nvim_create_buf(false, true)
+		-- 		vim.bo[macro_buf].bufhidden = "wipe"
+		-- 		vim.bo[macro_buf].filetype = "noice"
+		-- 		vim.api.nvim_buf_set_lines(macro_buf, 0, -1, false, { text })
+		--
+		-- 		macro_win = vim.api.nvim_open_win(macro_buf, false, {
+		-- 			relative = "editor",
+		-- 			row = 1,
+		-- 			col = col,
+		-- 			width = width,
+		-- 			height = 1,
+		-- 			style = "minimal",
+		-- 			border = "rounded",
+		-- 			focusable = false,
+		-- 			noautocmd = true,
+		-- 			zindex = 200,
+		-- 		})
+		--
+		-- 		vim.wo[macro_win].winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder"
+		-- 	end
+		--
+		-- 	vim.api.nvim_create_autocmd("RecordingEnter", {
+		-- 		group = group,
+		-- 		callback = function()
+		-- 			local register = vim.fn.reg_recording()
+		-- 			if register == "" then
+		-- 				return
+		-- 			end
+		--
+		-- 			open_macro_popup(register)
+		-- 		end,
+		-- 	})
+		--
+		-- 	vim.api.nvim_create_autocmd("RecordingLeave", {
+		-- 		group = group,
+		-- 		callback = function()
+		-- 			close_macro_popup()
+		-- 		end,
+		-- 	})
+		--
+		-- 	vim.api.nvim_create_autocmd("VimResized", {
+		-- 		group = group,
+		-- 		callback = function()
+		-- 			local register = vim.fn.reg_recording()
+		-- 			if register ~= "" then
+		-- 				open_macro_popup(register)
+		-- 			end
+		-- 		end,
+		-- 	})
+		-- end,
+		config = function(_, opts)
+			require("noice").setup(opts)
+		end,
 		opts = {
 			cmdline = {
 				format = {
